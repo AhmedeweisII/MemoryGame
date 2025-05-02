@@ -23,11 +23,13 @@
             justify-content: center;
             gap: 15px;
             margin-top: 30px;
+            width: 90%;
         }
 
         .card {
-            width: 200px;
-            height: 200px;
+            width: 20%;
+            height: 0;
+            padding-bottom: 20%;
             background-color: #0077b6;
             border-radius: 10px;
             cursor: pointer;
@@ -54,15 +56,22 @@
             backface-visibility: hidden;
             position: absolute;
             border-radius: 10px;
-        }
-
-        .front {
-            background-color: #90e0ef;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 40px;
+        }
+
+        .front {
+            background-color: #ffffff;
             transform: rotateY(180deg);
+        }
+
+        .front img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            object-fit: contain;
         }
 
         .back {
@@ -74,7 +83,9 @@
                     rgba(255, 255, 255, 0.05) 10px,
                     transparent 10px,
                     transparent 20px);
-            border-radius: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
         }
 
         #stats {
@@ -86,20 +97,53 @@
         #stats p {
             font-size: 30px;
         }
+
+        #winMessage {
+            font-weight: bold;
+            color: green;
+            display: none;
+        }
+
+        #shuffleBtn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            font-size: 24px;
+            background-color: #00b4d8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .controls button {
+            font-size: 30px;
+        }
+
+        .d-n {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
-    <h2>لعبة مطابقة الصور</h2>
+    <h2> اختار رقمين</h2>
     <div id="stats">
-        <p>✅ عدد الصور المكتشفة: <span id="score">0</span></p>
-        <p>🕹️ الصور المتبقية: <span id="remaining">8</span></p>
+        <p class="d-n"> <span id="score"></span></p>
+        <p class="d-n"> <span id="remaining"></span></p>
+        <p class="d-n" id="winMessage"></p>
     </div>
-    <div class="grid" id="gameGrid"></div>
+    <div class="controls">
+        <button onclick="shuffleGame()">🔄 لخبط الصور</button>
+    </div>
+    <div id="notification" style="display:none; font-size: 26px; color: green; margin-top: 20px;">✅ تم تحديث الصور</div>
+    <div style="display: flex; justify-content: center;">
+        <div class="grid" id="gameGrid"></div>
+    </div>
+    <!-- <div id="notification" style="display:none; font-size: 26px; color: green; margin-top: 20px;">✅ تم تحديث الصور</div> -->
     <script>
-        const emojis = ['🍎', '🍌', '🍇', '🍓', '🍊', '🍉', '🥝', '🍍'];
-        let cards = [...emojis, ...emojis]; // نسختان من كل صورة
-        cards.sort(() => 0.5 - Math.random());
+        const totalCards = 20;
+        const imageCount = 5; // 1.png إلى 5.png
+        const repeatCount = totalCards / imageCount; // 4 مرات لكل صورة
         const grid = document.getElementById('gameGrid');
         const scoreDisplay = document.getElementById('score');
         const remainingDisplay = document.getElementById('remaining');
@@ -107,54 +151,83 @@
         let flipped = [];
         let lock = false;
         let score = 0;
-        const totalPairs = emojis.length;
-        remainingDisplay.textContent = totalPairs;
-        cards.forEach((symbol, index) => {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.dataset.symbol = symbol;
-            const inner = document.createElement('div');
-            inner.classList.add('inner');
-            const front = document.createElement('div');
-            front.classList.add('front');
-            front.textContent = symbol;
-            const back = document.createElement('div');
-            back.classList.add('back');
-            inner.appendChild(front);
-            inner.appendChild(back);
-            card.appendChild(inner);
-            card.addEventListener('click', () => {
-                if (lock || card.classList.contains('matched') || card.classList.contains('flipped')) return;
-                card.classList.add('flipped');
-                flipped.push(card);
-                if (flipped.length === 2) {
-                    lock = true;
-                    const [first, second] = flipped;
-                    if (first.dataset.symbol === second.dataset.symbol) {
-                        first.classList.add('matched');
-                        second.classList.add('matched');
-                        flipped = [];
-                        lock = false;
-                        // تحديث النتيجة
-                        score++;
-                        scoreDisplay.textContent = score;
-                        remainingDisplay.textContent = totalPairs - score;
-                        // التحقق من الفوز
-                        if (score === totalPairs) {
-                            winMessage.style.display = 'block';
-                        }
-                    } else {
-                        setTimeout(() => {
-                            first.classList.remove('flipped');
-                            second.classList.remove('flipped');
+        const totalPairs = totalCards / 2;
+        function generateCards() {
+            let cards = [];
+            for (let i = 1; i <= imageCount; i++) {
+                for (let j = 0; j < repeatCount; j++) {
+                    cards.push(`RandomImages/${i}.png`);
+                }
+            }
+            return cards.sort(() => 0.5 - Math.random());
+        }
+        function buildGrid(cards) {
+            grid.innerHTML = '';
+            flipped = [];
+            lock = false;
+            score = 0;
+            scoreDisplay.textContent = 0;
+            remainingDisplay.textContent = totalPairs;
+            winMessage.style.display = 'none';
+            cards.forEach((imgSrc, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.symbol = imgSrc;
+                const inner = document.createElement('div');
+                inner.classList.add('inner');
+                const front = document.createElement('div');
+                front.classList.add('front');
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                front.appendChild(img);
+                const back = document.createElement('div');
+                back.classList.add('back');
+                back.textContent = index + 1;
+                inner.appendChild(front);
+                inner.appendChild(back);
+                card.appendChild(inner);
+                card.addEventListener('click', () => {
+                    if (lock || card.classList.contains('matched') || card.classList.contains('flipped')) return;
+                    card.classList.add('flipped');
+                    flipped.push(card);
+                    if (flipped.length === 2) {
+                        lock = true;
+                        const [first, second] = flipped;
+                        if (first.dataset.symbol === second.dataset.symbol) {
+                            first.classList.add('matched');
+                            second.classList.add('matched');
                             flipped = [];
                             lock = false;
-                        }, 1000);
+                            score++;
+                            scoreDisplay.textContent = score;
+                            remainingDisplay.textContent = totalPairs - score;
+                            if (score === totalPairs) {
+                                winMessage.style.display = 'block';
+                            }
+                        } else {
+                            setTimeout(() => {
+                                first.classList.remove('flipped');
+                                second.classList.remove('flipped');
+                                flipped = [];
+                                lock = false;
+                            }, 1000);
+                        }
                     }
-                }
+                });
+                grid.appendChild(card);
             });
-            grid.appendChild(card);
-        });
+        }
+        function shuffleGame() {
+            const newCards = generateCards();
+            buildGrid(newCards);
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 1000);
+        }
+        // أول تحميل
+        shuffleGame();
     </script>
 </body>
 
