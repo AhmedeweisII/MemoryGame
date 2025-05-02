@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة مطابقة الصور</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            direction: rtl;
+            background-color: #f9f9f9;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #0077b6;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .inner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .inner {
+            transform: rotateY(180deg);
+        }
+
+        .front,
+        .back {
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            position: absolute;
+            border-radius: 10px;
+        }
+
+        .front {
+            background-color: #90e0ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            transform: rotateY(180deg);
+        }
+
+        .back {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            border: 2px solid #023e8a;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.3);
+            background-image: repeating-linear-gradient(45deg,
+                    rgba(255, 255, 255, 0.05),
+                    rgba(255, 255, 255, 0.05) 10px,
+                    transparent 10px,
+                    transparent 20px);
+            border-radius: 10px;
+        }
+
+        #stats {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #023e8a;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>لعبة مطابقة الصور</h2>
+    <div id="stats">
+        <p>✅ عدد الصور المكتشفة: <span id="score">0</span></p>
+        <p>🕹️ الصور المتبقية: <span id="remaining">8</span></p>
+    </div>
+    <div class="grid" id="gameGrid"></div>
+    <script>
+        const emojis = ['🍎', '🍌', '🍇', '🍓', '🍊', '🍉', '🥝', '🍍'];
+        let cards = [...emojis, ...emojis]; // نسختان من كل صورة
+        cards.sort(() => 0.5 - Math.random());
+        const grid = document.getElementById('gameGrid');
+        const scoreDisplay = document.getElementById('score');
+        const remainingDisplay = document.getElementById('remaining');
+        const winMessage = document.getElementById('winMessage');
+        let flipped = [];
+        let lock = false;
+        let score = 0;
+        const totalPairs = emojis.length;
+        remainingDisplay.textContent = totalPairs;
+        cards.forEach((symbol, index) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.symbol = symbol;
+            const inner = document.createElement('div');
+            inner.classList.add('inner');
+            const front = document.createElement('div');
+            front.classList.add('front');
+            front.textContent = symbol;
+            const back = document.createElement('div');
+            back.classList.add('back');
+            inner.appendChild(front);
+            inner.appendChild(back);
+            card.appendChild(inner);
+            card.addEventListener('click', () => {
+                if (lock || card.classList.contains('matched') || card.classList.contains('flipped')) return;
+                card.classList.add('flipped');
+                flipped.push(card);
+                if (flipped.length === 2) {
+                    lock = true;
+                    const [first, second] = flipped;
+                    if (first.dataset.symbol === second.dataset.symbol) {
+                        first.classList.add('matched');
+                        second.classList.add('matched');
+                        flipped = [];
+                        lock = false;
+                        // تحديث النتيجة
+                        score++;
+                        scoreDisplay.textContent = score;
+                        remainingDisplay.textContent = totalPairs - score;
+                        // التحقق من الفوز
+                        if (score === totalPairs) {
+                            winMessage.style.display = 'block';
+                        }
+                    } else {
+                        setTimeout(() => {
+                            first.classList.remove('flipped');
+                            second.classList.remove('flipped');
+                            flipped = [];
+                            lock = false;
+                        }, 1000);
+                    }
+                }
+            });
+            grid.appendChild(card);
+        });
+    </script>
+</body>
+
+</html>
