@@ -10,6 +10,7 @@
             text-align: center;
             direction: rtl;
             background-color: #f9f9f9;
+            font-size: 30px;
         }
 
         h2 {
@@ -17,16 +18,16 @@
         }
 
         .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 100px);
-            gap: 15px;
+            display: flex;
+            flex-wrap: wrap;
             justify-content: center;
+            gap: 15px;
             margin-top: 30px;
         }
 
         .card {
-            width: 100px;
-            height: 100px;
+            width: 200px;
+            height: 200px;
             background-color: #0077b6;
             border-radius: 10px;
             cursor: pointer;
@@ -80,6 +81,10 @@
             font-size: 18px;
             margin-top: 20px;
             color: #023e8a;
+        }
+
+        #stats p {
+            font-size: 30px;
         }
     </style>
 </head>
