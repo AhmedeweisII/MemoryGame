@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Table with Number Input and Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .table-container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .counter {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        @media (max-width: 600px) {
+            .table-container {
+                max-width: 100%;
+                padding: 10px;
+            }
+            img {
+                width: 80px;
+                height: 80px;
+            }
+            input[type="number"] {
+                width: 60px;
+            }
+            th,
+            td {
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <div class="counter">Decreased by: <span id="counter">0</span></div>
+        <table id="imageTable">
+            <thead>
+                <tr>
+                    <th>Image 1</th>
+                    <th>Image 2</th>
+                    <th>Image 3</th>
+                    <th>Image 4</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <script>
+        // Static array of image paths
+        const imagePaths = [
+            'RandomImages/1.png',
+            'RandomImages/2.png',
+            'RandomImages/3.png',
+            'RandomImages/4.png',
+            'RandomImages/5.png',
+            'RandomImages/6.png',
+            'RandomImages/7.png',
+            'RandomImages/8.png',
+            'RandomImages/9.png',
+            'RandomImages/10.png',
+            'RandomImages/11.png',
+            'RandomImages/12.png',
+        ];
+        // Function to update the counter
+        function updateCounter() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            let sum = 0;
+            inputs.forEach(input => {
+                const value = parseInt(input.value, 10);
+                if (!isNaN(value) && value >= 0) {
+                    sum += value;
+                }
+            });
+            const counter = document.getElementById('counter');
+            counter.textContent = sum; // Display the sum of inputs (amount decreased)
+        }
+        // Function to generate table rows
+        function populateTable() {
+            const tableBody = document.getElementById('tableBody');
+            // Clear existing rows
+            tableBody.innerHTML = '';
+            // Generate rows with 4 columns each
+            for (let i = 0; i < imagePaths.length; i += 4) {
+                const row = document.createElement('tr');
+                // Create up to 4 cells per row
+                for (let j = 0; j < 4; j++) {
+                    const index = i + j;
+                    const cell = document.createElement('td');
+                    if (index < imagePaths.length) {
+                        // Image
+                        const img = document.createElement('img');
+                        img.src = imagePaths[index];
+                        img.alt = `Image ${index + 1}`;
+                        // Handle image load error
+                        img.onerror = () => {
+                            img.src = 'https://via.placeholder.com/100?text=Image+Not+Found';
+                            img.alt = 'Image Not Found';
+                        };
+                        cell.appendChild(img);
+                        // Input
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.min = '0';
+                        input.placeholder = 'Enter number';
+                        input.addEventListener('input', updateCounter);
+                        cell.appendChild(input);
+                    }
+                    row.appendChild(cell);
+                }
+                tableBody.appendChild(row);
+            }
+        }
+        // Call the function when the page loads
+        window.onload = () => {
+            populateTable();
+            updateCounter(); // Initialize counter
+        };
+    </script>
+</body>
+</html>

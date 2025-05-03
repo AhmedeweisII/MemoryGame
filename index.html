@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar">
-
 <head>
     <meta charset="UTF-8">
     <title>لعبة مطابقة الصور</title>
@@ -12,11 +11,9 @@
             background-color: #f9f9f9;
             font-size: 30px;
         }
-
         h2 {
             margin-top: 20px;
         }
-
         .grid {
             display: flex;
             flex-wrap: wrap;
@@ -25,18 +22,16 @@
             margin-top: 30px;
             width: 90%;
         }
-
         .card {
-            width: 20%;
+            width: 22%;
             height: 0;
-            padding-bottom: 20%;
+            padding-bottom: 22%;
             background-color: #0077b6;
             border-radius: 10px;
             cursor: pointer;
             position: relative;
             perspective: 1000px;
         }
-
         .inner {
             width: 100%;
             height: 100%;
@@ -44,11 +39,9 @@
             transition: transform 0.5s;
             transform-style: preserve-3d;
         }
-
         .card.flipped .inner {
             transform: rotateY(180deg);
         }
-
         .front,
         .back {
             width: 100%;
@@ -61,19 +54,16 @@
             justify-content: center;
             font-size: 40px;
         }
-
         .front {
             background-color: #ffffff;
             transform: rotateY(180deg);
         }
-
         .front img {
             max-width: 90%;
             max-height: 90%;
             border-radius: 10px;
             object-fit: contain;
         }
-
         .back {
             background: linear-gradient(135deg, #0077b6, #00b4d8);
             border: 2px solid #023e8a;
@@ -87,23 +77,19 @@
             font-weight: bold;
             color: white;
         }
-
         #stats {
             font-size: 18px;
             margin-top: 20px;
             color: #023e8a;
         }
-
         #stats p {
             font-size: 30px;
         }
-
         #winMessage {
             font-weight: bold;
             color: green;
             display: none;
         }
-
         #shuffleBtn {
             margin-top: 20px;
             padding: 10px 25px;
@@ -114,36 +100,68 @@
             border-radius: 8px;
             cursor: pointer;
         }
-
         .controls button {
             font-size: 30px;
         }
-
         .d-n {
             display: none;
         }
     </style>
 </head>
-
 <body>
-    <h2> اختار رقمين</h2>
+    <h2>اختار رقمين</h2>
     <div id="stats">
-        <p class="d-n"> <span id="score"></span></p>
-        <p class="d-n"> <span id="remaining"></span></p>
+        <p class="d-n"><span id="score"></span></p>
+        <p class="d-n"><span id="remaining"></span></p>
         <p class="d-n" id="winMessage"></p>
     </div>
     <div class="controls">
         <button onclick="shuffleGame()">🔄 لخبط الصور</button>
+        <button onclick="showAllCards()" style="margin: 0 10px;">👁️ عرض البطاقات</button>
     </div>
     <div id="notification" style="display:none; font-size: 26px; color: green; margin-top: 20px;">✅ تم تحديث الصور</div>
     <div style="display: flex; justify-content: center;">
         <div class="grid" id="gameGrid"></div>
     </div>
-    <!-- <div id="notification" style="display:none; font-size: 26px; color: green; margin-top: 20px;">✅ تم تحديث الصور</div> -->
     <script>
-        const totalCards = 20;
-        const imageCount = 5; // 1.png إلى 5.png
-        const repeatCount = totalCards / imageCount; // 4 مرات لكل صورة
+        function showAllCards() {
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                card.classList.add('flipped');
+            });
+            // بعد 10 ثوانٍ، أعد قلبها
+            setTimeout(() => {
+                allCards.forEach(card => {
+                    card.classList.remove('flipped');
+                });
+            }, 100000); // 10 ثوانٍ
+        }
+        const totalCards = 18;
+        // تحديد عدد تكرار كل صورة
+        const symbols = [
+            { src: "RandomImages/1.png", count: 2 },   // دوناتس
+            { src: "RandomImages/2.png", count: 2 },   // قلب متوسط
+            { src: "RandomImages/3.png", count: 4 },   // قلب صغير
+            { src: "RandomImages/4.png", count: 3 },   // وردة
+            { src: "RandomImages/5.png", count: 1 },   // قلب غالي
+            { src: "RandomImages/6.png", count: 1 },   // مفتاح
+            { src: "RandomImages/7.png", count: 1 },   // ثابت
+            { src: "RandomImages/8.png", count: 1 },   // ثابت
+            { src: "RandomImages/9.png", count: 1 },   // ثابت
+            { src: "RandomImages/10.png", count: 1 },  // ثابت
+            { src: "RandomImages/11.png", count: 1 },  // ثابت
+            { src: "RandomImages/12.png", count: 1 }   // ثابت
+        ];
+        // إنشاء قائمة تحتوي على جميع الصور حسب عدد التكرارات
+        function generateCards() {
+            let cards = [];
+            symbols.forEach(item => {
+                for (let i = 0; i < item.count; i++) {
+                    cards.push(item.src);
+                }
+            });
+            return cards.sort(() => 0.5 - Math.random()); // خلط عشوائي
+        }
         const grid = document.getElementById('gameGrid');
         const scoreDisplay = document.getElementById('score');
         const remainingDisplay = document.getElementById('remaining');
@@ -152,15 +170,6 @@
         let lock = false;
         let score = 0;
         const totalPairs = totalCards / 2;
-        function generateCards() {
-            let cards = [];
-            for (let i = 1; i <= imageCount; i++) {
-                for (let j = 0; j < repeatCount; j++) {
-                    cards.push(`RandomImages/${i}.png`);
-                }
-            }
-            return cards.sort(() => 0.5 - Math.random());
-        }
         function buildGrid(cards) {
             grid.innerHTML = '';
             flipped = [];
@@ -226,9 +235,8 @@
                 notification.style.display = 'none';
             }, 2000);
         }
-        // أول تحميل
+        // تشغيل اللعبة أول مرة
         shuffleGame();
     </script>
 </body>
-
 </html>
